@@ -56,28 +56,43 @@ def get_token_price():
     SLP_PRICE = PRICES['smooth-love-potion']['usd']
     return AXS_PRICE, SLP_PRICE
 
+def sum_axs(breed_count):
+    return sum(AXS[:breed_count + 1])
 
-def main():
+def sum_slp(breed_count):
+    return sum(SLP[:breed_count + 1])
+
+def generate_profits(AXS_PRICE, SLP_PRICE, min_sale_price, eth_gas_fees):
+    breeding_profits = []
+    breeding_costs = []
+
+    prev_cost = 0
+    for breed_count, cost in enumerate(gen_costs(AXS_PRICE, SLP_PRICE)):
+        if breed_count != 0:
+            revenue = (breed_count * min_sale_price)
+            cost_tx = round(prev_cost + (cost + (eth_gas_fees * number_of_transactions)), 2)
+            breeding_costs.append(cost_tx)
+            profit = round(revenue - cost_tx, 2)
+            breeding_profits.append(profit)
+            print(f'breed #{breed_count} profit:{profit}\t\tTOTAL_COST: {cost_tx}\t\tAXS: {sum_axs(breed_count)}\t\tSLP: {sum_slp(breed_count)}')
+        prev_cost += cost
+
+    return breeding_profits, breeding_costs
+
+def breed_main():
     AXS_PRICE, SLP_PRICE = get_token_price()
     min_sale_price = wrapped_input('Minimum sale price (regardless of breed count): ')
     eth_gas_fees = wrapped_input('Average ethereum gas fee right now: ')
     print(f'Average number of transactions: {number_of_transactions}')
     print(f'\nAXS_PRICE: {AXS_PRICE}')
     print(f'SLP_PRICE: {SLP_PRICE}\n')
-    breeding_profits = []
 
-    prev_cost = 0
-    for breed_count, cost in enumerate(gen_costs(AXS_PRICE, SLP_PRICE)):
-        if breed_count != 0:
-            revenue = (breed_count * min_sale_price)
-            cost_tx = prev_cost + (cost + (eth_gas_fees * number_of_transactions))
-            profit = revenue - cost_tx
-            breeding_profits.append(profit)
-            print(f'breed #{breed_count} profit: {profit}\t\tCOST:{cost_tx}')
-        prev_cost += cost
+    breeding_profits, breeding_costs = generate_profits(AXS_PRICE, SLP_PRICE, min_sale_price, eth_gas_fees)  
 
     max_profit_idx, max_profit = max_of_profit(breeding_profits)
-    print(f'\nMost profits at {max_profit_idx} breeds, with {max_profit} profits.')
+    max_profit_cost = breeding_costs[max_profit_idx - 1]
+    print(f'Most profits at {max_profit_idx} breeds, with {max_profit} profits.\t\tTOTAL_COST: {max_profit_cost}\t\tAXS: {sum_axs(max_profit_idx)}\t\tSLP: {sum_slp(max_profit_idx)}')
+    return min_sale_price, max_profit_idx, breeding_costs, sum_axs(max_profit_idx), sum_slp(max_profit_idx)
 
 if __name__ == '__main__':
-    main()
+    breed_main()
