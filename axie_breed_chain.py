@@ -29,12 +29,17 @@ def chain_main():
     breeding_costs = breeding_costs_lst[max_profit_breed_count]
     
     print('\n\n\n\n------------------------INFINITE-BREED-CHAINING------------------------')
+    print(f'{num_of_generations} Generations')
 
     for i in range(2, 5):
-        if i > 2:
-            can_infinite_chain = '~~CAN INFINITE CHAIN~~'
+        if i == 3:
+            can_infinite_chain = 'CAN INFINITE CHAIN'
+        elif i == 4:
+            can_infinite_chain = 'CAN INFINITE CHAIN (Easier to keep track of)'
         else:
-            can_infinite_chain = '~~CAN\'T INFINITE CHAIN~~'
+            can_infinite_chain = '~~~~CAN\'T INFINITE CHAIN~~~~'
+            if (plan_to_breed_after):
+                can_infinite_chain = 'Will be required to purchase new virgin axies if you want to breed after each generation\n' + can_infinite_chain
 
         print(f'\n{can_infinite_chain}\nCHAIN LENGTH: {i}\n\t', end='')
         num_of_breeding_pairs, num_of_non_virgins, num_of_virgins = infinite_loop_chain(i, max_profit_breed_count, num_of_generations)
@@ -52,7 +57,9 @@ def chain_main():
         
         total_axs = num_of_breeding_pairs * breeding_axs_cost
         total_slp = num_of_breeding_pairs * breeding_slp_cost
-        print(f'\tProfit: {profit}\t\tCost: {cost}\t\tAXS: {total_axs}\t\tSLP: {total_slp}')
+        # til_break_even()
+        print(f'\tProfit: {profit}\t\tResource + Additional_Axie Cost: {cost}\t\tAXS: {total_axs}\t\tSLP: {total_slp}')
+
 
 if __name__ == '__main__':
     chain_main()
